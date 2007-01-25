@@ -33,7 +33,7 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % The title should be descriptive enough for people to be able to find
 % the relevant document. 
-\title{}
+\title{Some extra image logical operations}
 
 % Increment the release number whenever significant changes are made.
 % The author and/or editor can define 'significant' however they like.
@@ -41,8 +41,8 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % At minimum, give your name and an email address.  You can include a
 % snail-mail address if you like.
-\author{}
-\authoraddress{}
+\author{Richard Beare}
+\authoraddress{Richard.Beare@ieee.org}
 
 \begin{document}
 \maketitle
@@ -56,35 +56,96 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 \noindent
 % The abstract should be a paragraph or two long, and describe the
 % scope of the document.
+Logic operations such as $I > J$, where I and J are images are
+useful when generating masks. This submission includes $==$, $>$,
+$>=$, $<$ and $<=$ filters based on the existing logic
+filters. 
 \end{abstract}
 
 \tableofcontents
 
+\section{Introduction}
+This submission is hardly worth describing. It consists of filters for
+pixelwise equality and comparison operations of images, which I
+couldn't see any other direct ways of achieving in ITK. Please
+indicate in your comments if I've missed something. The implentation
+is copied directly from the the other logic filters, such as {\em
+itkAndImageFilter} and is therefore threaded.
 
-% \url{http://www.itk.org}
-% \code{Insight/Documentation/Style.pdf}
-% \section{Principles of Solar Spot Detection}
-% \cite{ITKSoftwareGuide}.
-% \doxygen{ImageToImageFilter}
+\section{Using the new filters}
+The new filters are: {\em itkEqualImageFilter}, {\em
+itkGreaterEqualImageFilter}, {\em itkGreaterImageFilter}, {\em
+itkLessEqualImageFilter}, {\em itkLessImageFilter}. Usage is identical
+to other logic filters and is illustrated in the test function - {\em check.cxx}
+included in the archive.
 
-% \small \begin{verbatim}
-% \end{verbatim} \normalsize
+\begin{verbatim}
+  const int dim = 2;
+  
+  typedef unsigned char PType;
+  typedef itk::Image< PType, dim > IType;
+
+  typedef itk::ImageFileReader< IType > ReaderType;
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[1] );
+
+  typedef itk::SmoothingRecursiveGaussianImageFilter<IType, IType> SmoothType;
+  SmoothType::Pointer smoother = SmoothType::New();
+
+  smoother->SetInput(reader->GetOutput());
+  smoother->SetSigma(1);
+
+  typedef itk::EqualImageFilter<IType, IType, IType> EqType;
+  typedef itk::GreaterImageFilter<IType, IType, IType> GTType;
+  typedef itk::GreaterEqualImageFilter<IType, IType, IType> GTEqType;
+  typedef itk::LessImageFilter<IType, IType, IType> LTType;
+  typedef itk::LessEqualImageFilter<IType, IType, IType> LTEqType;
+
+  EqType::Pointer eq = EqType::New();
+  GTType::Pointer gt = GTType::New();
+  GTEqType::Pointer gte = GTEqType::New();
+  LTType::Pointer lt = LTType::New();
+  LTEqType::Pointer lte = LTEqType::New();
 
 
-% The {itemize} environment uses a bullet for each \item.  If you want the 
-% \item's numbered, use the {enumerate} environment instead.
-% \begin{itemize}
-%   \item  Insight Toolkit 2.4.
-%   \item  CMake 2.2
-% \end{itemize}
+  eq->SetInput(reader->GetOutput());
+  gt->SetInput(reader->GetOutput());
+  gte->SetInput(reader->GetOutput());
+  lt->SetInput(reader->GetOutput());
+  lte->SetInput(reader->GetOutput());
 
-% \ref{cthead1}
+  eq->SetInput2(smoother->GetOutput());
+  gt->SetInput2(smoother->GetOutput());
+  gte->SetInput2(smoother->GetOutput());
+  lt->SetInput2(smoother->GetOutput());
+  lte->SetInput2(smoother->GetOutput());
 
-\begin{figure}[htbp]
-\centering
-\includegraphics{cthead1}
-\caption{The input image.\label{cthead1}}
-\end{figure}
+  
+
+
+  typedef itk::ImageFileWriter< IType > WriterType;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetInput( eq->GetOutput() );
+  writer->SetFileName( argv[2] );
+  writer->Update();
+
+  writer->SetInput( gt->GetOutput() );
+  writer->SetFileName( argv[3] );
+  writer->Update();
+
+  writer->SetInput( gte->GetOutput() );
+  writer->SetFileName( argv[4] );
+  writer->Update();
+
+  writer->SetInput( lt->GetOutput() );
+  writer->SetFileName( argv[5] );
+  writer->Update();
+
+  writer->SetInput( lte->GetOutput() );
+  writer->SetFileName( argv[6] );
+  writer->Update();
+
+\end{verbatim}
 
 
 \appendix
