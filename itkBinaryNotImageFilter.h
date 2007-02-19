@@ -74,6 +74,10 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
+  /** Runtime information support. */
+  itkTypeMacro(BinaryNotImageFilter,
+               ImageToImageFilter);
+
   typedef typename TImage::PixelType     PixelType;
 
   /** Set the value in the image to consider as "foreground". Defaults to
