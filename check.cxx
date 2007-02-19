@@ -4,6 +4,7 @@
 #include "itkSimpleFilterWatcher.h"
 
 #include "itkEqualImageFilter.h"
+#include "itkNotEqualImageFilter.h"
 #include "itkGreaterEqualImageFilter.h"
 #include "itkGreaterImageFilter.h"
 #include "itkLessEqualImageFilter.h"
@@ -29,12 +30,14 @@ int main(int, char * argv[])
   smoother->SetSigma(1);
 
   typedef itk::EqualImageFilter<IType, IType, IType> EqType;
+  typedef itk::NotEqualImageFilter<IType, IType, IType> NEType;
   typedef itk::GreaterImageFilter<IType, IType, IType> GTType;
   typedef itk::GreaterEqualImageFilter<IType, IType, IType> GTEqType;
   typedef itk::LessImageFilter<IType, IType, IType> LTType;
   typedef itk::LessEqualImageFilter<IType, IType, IType> LTEqType;
 
   EqType::Pointer eq = EqType::New();
+  NEType::Pointer ne = NEType::New();
   GTType::Pointer gt = GTType::New();
   GTEqType::Pointer gte = GTEqType::New();
   LTType::Pointer lt = LTType::New();
@@ -42,12 +45,14 @@ int main(int, char * argv[])
 
 
   eq->SetInput(reader->GetOutput());
+  ne->SetInput(reader->GetOutput());
   gt->SetInput(reader->GetOutput());
   gte->SetInput(reader->GetOutput());
   lt->SetInput(reader->GetOutput());
   lte->SetInput(reader->GetOutput());
 
   eq->SetInput2(smoother->GetOutput());
+  ne->SetInput2(smoother->GetOutput());
   gt->SetInput2(smoother->GetOutput());
   gte->SetInput2(smoother->GetOutput());
   lt->SetInput2(smoother->GetOutput());
@@ -80,6 +85,10 @@ int main(int, char * argv[])
 
   writer->SetInput( smoother->GetOutput() );
   writer->SetFileName( argv[7] );
+  writer->Update();
+
+  writer->SetInput( ne->GetOutput() );
+  writer->SetFileName( argv[8] );
   writer->Update();
 
   return 0;
