@@ -3,6 +3,7 @@ PROJECT(logicOps)
 
 # set the name of the input image used to run the test
 SET(INPUT_IMAGE ${CMAKE_SOURCE_DIR}/images/cthead1.png)
+SET(BINARY_INPUT_IMAGE ${CMAKE_SOURCE_DIR}/images/cthead1.png)
 
 #include some macros from another file...
 INCLUDE(IJMacros.txt)
@@ -66,6 +67,10 @@ SET(CurrentExe "check")
 ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
+SET(CurrentExe "binary_check")
+ADD_EXECUTABLE(${CurrentExe} ${CurrentExe}.cxx)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
 ENDIF(BUILD_TESTING)
 
 #the following line is an example of how to add a test to your project.
@@ -83,3 +88,9 @@ ADD_TEST(CompareImageGTE ${IMAGE_COMPARE} gte.png ${CMAKE_SOURCE_DIR}/images/gte
 ADD_TEST(CompareImageLT ${IMAGE_COMPARE} lt.png ${CMAKE_SOURCE_DIR}/images/lt.png)
 ADD_TEST(CompareImageLTE ${IMAGE_COMPARE} lte.png ${CMAKE_SOURCE_DIR}/images/lte.png)
 ADD_TEST(CompareImageNE ${IMAGE_COMPARE} ne.png ${CMAKE_SOURCE_DIR}/images/ne.png)
+
+ADD_TEST(BinaryRun binary_check ${BINARY_INPUT_IMAGE} ${CMAKE_SOURCE_DIR}/images/ne.png and.png or.png xor.png not.png 255 0)
+ADD_TEST(CompareBinaryAnd ${IMAGE_COMPARE} and.png ${CMAKE_SOURCE_DIR}/images/and.png)
+ADD_TEST(CompareBinaryOr ${IMAGE_COMPARE} or.png ${CMAKE_SOURCE_DIR}/images/or.png)
+ADD_TEST(CompareBinaryXor ${IMAGE_COMPARE} xor.png ${CMAKE_SOURCE_DIR}/images/xor.png)
+ADD_TEST(CompareBinaryNot ${IMAGE_COMPARE} not.png ${CMAKE_SOURCE_DIR}/images/not.png)
