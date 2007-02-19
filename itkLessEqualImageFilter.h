@@ -1,5 +1,5 @@
-#ifndef __itkLessEqualImageFilter_h
-#define __itkLessEqualImageFilter_h
+#ifndef __itkLessEqualEqualImageFilter_h
+#define __itkLessEqualEqualImageFilter_h
 
 #include "itkBinaryFunctorImageFilter.h"
 #include "itkNumericTraits.h"
@@ -8,8 +8,8 @@
 namespace itk
 {
   
-/** \class LessEqualImageFilter
- * \brief Implements the LessEqual logical operator pixel-wise between two images.
+/** \class LessEqualEqualImageFilter
+ * \brief Implements the LessEqualEqual logical operator pixel-wise between two images.
  *
  * This class is parametrized over the types of the two 
  * input images and the type of the output image. 
@@ -27,23 +27,30 @@ namespace itk
 namespace Functor {  
   
 template< class TInput1, class TInput2=TInput1, class TOutput=TInput1 >
-class LESSEQUAL
+class LessEqual
 {
 public:
-  LESSEQUAL() {};
-  ~LESSEQUAL() {};
-  bool operator!=( const LESSEQUAL & ) const
+  LessEqual() {};
+  ~LessEqual() {};
+  bool operator!=( const LessEqual & ) const
   {
     return false;
   }
-  bool operator==( const LESSEQUAL & other ) const
+  bool operator==( const LessEqual & other ) const
   {
     return !(*this != other);
   }
   inline TOutput operator()( const TInput1 & A, const TInput2 & B)
   {
-    return static_cast<TOutput>( A <= B );
+    if( A <= B )
+      {
+      return m_ForegroundValue;
+      }
+    return m_BackgroundValue;
   }
+
+  TOutput m_ForegroundValue;
+  TOutput m_BackgroundValue;
 }; 
 
 }
@@ -51,7 +58,7 @@ template <class TInputImage1, class TInputImage2, class TOutputImage>
 class ITK_EXPORT LessEqualImageFilter :
     public
 BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage, 
-                         Functor::LESSEQUAL< 
+                         Functor::LessEqual< 
   typename TInputImage1::PixelType, 
   typename TInputImage2::PixelType,
   typename TOutputImage::PixelType>   >
@@ -62,7 +69,7 @@ public:
   /** Standard class typedefs. */
   typedef LessEqualImageFilter  Self;
   typedef BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage, 
-                                   Functor::LESSEQUAL< 
+                                   Functor::LessEqual< 
     typename TInputImage1::PixelType, 
     typename TInputImage2::PixelType,
     typename TOutputImage::PixelType>   
@@ -73,6 +80,8 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
+  typedef typename TOutputImage::PixelType     OutputPixelType;
+
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(Input1Input2OutputLogicalOperatorsCheck,
@@ -82,14 +91,61 @@ public:
   /** End concept checking */
 #endif
 
+  /** Set the value in the image to consider as "foreground". Defaults to
+   * maximum value of PixelType.*/
+  itkSetMacro(ForegroundValue, OutputPixelType);
+
+  /** Get the value in the image considered as "foreground". Defaults to
+   * maximum value of PixelType. */
+  itkGetConstMacro(ForegroundValue, OutputPixelType);
+
+  /** Set the value used as "background". Defaults to
+   * NumericTraits<PixelType>::NonpositiveMin(). */
+  itkSetMacro(BackgroundValue, OutputPixelType);
+
+  /** Get the value used as "background". Defaults to
+   * NumericTraits<PixelType>::NonpositiveMin(). */
+  itkGetConstMacro(BackgroundValue, OutputPixelType);
+  
+
 protected:
-  LessEqualImageFilter() {}
+  LessEqualImageFilter()
+    {
+    m_ForegroundValue = NumericTraits<OutputPixelType>::max();
+    m_BackgroundValue = NumericTraits<OutputPixelType>::NonpositiveMin();
+    }
   virtual ~LessEqualImageFilter() {}
+
+  void PrintSelf(std::ostream& os, Indent indent) const
+    {
+    Superclass::PrintSelf(os,indent);
+
+    typedef typename NumericTraits<OutputPixelType>::PrintType
+                                              OutputPixelPrintType;
+
+    os << indent << "ForegroundValue: " 
+                    << static_cast< OutputPixelPrintType > (m_ForegroundValue) 
+                    << std::endl;
+ 
+    os << indent << "BackgroundValue: " 
+                    << static_cast< OutputPixelPrintType > (m_BackgroundValue) 
+                    << std::endl;
+    }
+
+  void GenerateData()
+    {
+    this->GetFunctor().m_ForegroundValue = m_ForegroundValue;
+    this->GetFunctor().m_BackgroundValue = m_BackgroundValue;
+    Superclass::GenerateData();
+    }
 
 private:
   LessEqualImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
+  OutputPixelType m_ForegroundValue;
+  OutputPixelType m_BackgroundValue;
+  
 };
 
 } // end namespace itk
