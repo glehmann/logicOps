@@ -8,22 +8,6 @@
 namespace itk
 {
   
-/** \class LessEqualEqualImageFilter
- * \brief Implements the LessEqualEqual logical operator pixel-wise between two images.
- *
- * This class is parametrized over the types of the two 
- * input images and the type of the output image. 
- * Numeric conversions (castings) are done by the C++ defaults.
- *
- * 
- * The total operation over one pixel will be
- *
- *  output_pixel = static_cast<OutputPixelType>( input1_pixel <= input2_pixel )
- *
- * Where "<=" is the less than or equal operator in C++.
- *
- * \ingroup IntensityImageFilters  Multithreaded
- */
 namespace Functor {  
   
 template< class TInput1, class TInput2=TInput1, class TOutput=TInput1 >
@@ -54,6 +38,7 @@ public:
 }; 
 
 }
+
 template <class TInputImage1, class TInputImage2, class TOutputImage>
 class ITK_EXPORT LessEqualImageFilter :
     public
@@ -64,6 +49,22 @@ BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage,
   typename TOutputImage::PixelType>   >
 
 
+/** \class LessEqualImageFilter
+ * \brief Implements the LessEqualEqual logical operator pixel-wise between two images.
+ *
+ * This class is parametrized over the types of the two 
+ * input images and the type of the output image. 
+ * Numeric conversions (castings) are done by the C++ defaults.
+ *
+ * 
+ * The total operation over one pixel will be
+ *
+ *  output_pixel = static_cast<OutputPixelType>( input1_pixel <= input2_pixel )
+ *
+ * Where "<=" is the less than or equal operator in C++.
+ *
+ * \ingroup IntensityImageFilters  Multithreaded
+ */
 {
 public:
   /** Standard class typedefs. */
