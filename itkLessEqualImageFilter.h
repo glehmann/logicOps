@@ -39,16 +39,6 @@ public:
 
 }
 
-template <class TInputImage1, class TInputImage2, class TOutputImage>
-class ITK_EXPORT LessEqualImageFilter :
-    public
-BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage, 
-                         Functor::LessEqual< 
-  typename TInputImage1::PixelType, 
-  typename TInputImage2::PixelType,
-  typename TOutputImage::PixelType>   >
-
-
 /** \class LessEqualImageFilter
  * \brief Implements the LessEqualEqual logical operator pixel-wise between two images.
  *
@@ -65,6 +55,14 @@ BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage,
  *
  * \ingroup IntensityImageFilters  Multithreaded
  */
+template <class TInputImage1, class TInputImage2, class TOutputImage>
+class ITK_EXPORT LessEqualImageFilter :
+    public
+BinaryFunctorImageFilter<TInputImage1,TInputImage2,TOutputImage, 
+                         Functor::LessEqual< 
+  typename TInputImage1::PixelType, 
+  typename TInputImage2::PixelType,
+  typename TOutputImage::PixelType>   >
 {
 public:
   /** Standard class typedefs. */
